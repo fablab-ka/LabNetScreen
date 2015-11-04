@@ -79,7 +79,9 @@ class pyscope :
         textSurface = self.bigFont.render("FELIX", True, self.textColor)
         self.screen.blit(textSurface, (0, 0))
 
-	clockSurface = self.bigFont.render(time.strftime("%H:%M:%S", time.gmtime()))
+	clockData = time.strftime("%H:%M:%S", time.gmtime())
+	print clockData
+	clockSurface = self.bigFont.render(clockData, True, self.textColor)
 	self.screen.blit(clockSurface, (self.screenSize[0] - clockSurface.get_width(), self.screenSize[1] - clockSurface.get_height()))
 
         x = 50
