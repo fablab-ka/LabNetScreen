@@ -38,9 +38,12 @@ class pyscope :
             self.screen = pygame.display.set_mode(self.screenSize)
         
         else:
+	    print "loading framebuffer"
+
             drivers = ['fbcon', 'directfb', 'svgalib', 'fbdev', 'inteldrmfb', 'dga', 'ggi', 'vgl', 'svgalib', 'aalib']
             found = False
             for driver in drivers:
+		print "trying " + driver
                 if not os.getenv('SDL_VIDEODRIVER'):
                     os.putenv('SDL_VIDEODRIVER', driver)
                 try:
@@ -57,7 +60,6 @@ class pyscope :
             self.screenSize = (pygame.display.Info().current_w, pygame.display.Info().current_h)
             print "Framebuffer size: %d x %d" % (self.screenSize[0], self.screenSize[1])
             self.screen = pygame.display.set_mode(self.screenSize, pygame.FULLSCREEN)
-        
         self.screen.fill((0, 0, 0))        
         pygame.font.init()
         pygame.display.update()
@@ -67,7 +69,7 @@ class pyscope :
  
     def update(self):
 	time = pygame.time.get_ticks()
-	#print "time:" + str(time) + ' ' + str(self.lastupdate) + ' ' + str(self.interval)
+	print "time:" + str(time) + ' ' + str(self.lastupdate) + ' ' + str(self.interval)
         if self.lastupdate == None or (time - self.lastupdate) > self.interval:
             self.departures = kvvliveapi.get_departures('de:8212:7')
 	    self.lastupdate = time
@@ -99,6 +101,7 @@ class pyscope :
     
     def run(self):
         self.running = True
+	print "Starting Screen"
 
         clock = pygame.time.Clock()
         while self.running:
@@ -109,14 +112,12 @@ class pyscope :
                     self.running = False
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     self.running = False
-
             self.screen.fill(self.backgroundColor)
-
             self.update()
-
             self.draw()
-
             pygame.display.update()
+
+	print "Screen is now not running anymore"
  
 scope = pyscope()
 scope.run()
