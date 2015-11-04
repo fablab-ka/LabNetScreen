@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os
+import os,sys
 import pygame
 import time
 import random
@@ -34,7 +34,8 @@ class pyscope :
         if disp_no:
             print "I'm running under X display = {0}".format(disp_no)
             pygame.display.init()
-            self.screen = pygame.display.set_mode((800,600))
+	    self.screenSize = (800,600)
+            self.screen = pygame.display.set_mode(self.screenSize)
         
         else:
             drivers = ['fbcon', 'directfb', 'svgalib', 'fbdev', 'inteldrmfb', 'dga', 'ggi', 'vgl', 'svgalib', 'aalib']
@@ -53,9 +54,9 @@ class pyscope :
             if not found:
                 raise Exception('No suitable video driver found!')
             
-            size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
-            print "Framebuffer size: %d x %d" % (size[0], size[1])
-            self.screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+            self.screenSize = (pygame.display.Info().current_w, pygame.display.Info().current_h)
+            print "Framebuffer size: %d x %d" % (self.screenSize[0], self.screenSize[1])
+            self.screen = pygame.display.set_mode(self.screenSize, pygame.FULLSCREEN)
         
         self.screen.fill((0, 0, 0))        
         pygame.font.init()
@@ -70,12 +71,16 @@ class pyscope :
         if self.lastupdate == None or (time - self.lastupdate) > self.interval:
             self.departures = kvvliveapi.get_departures('de:8212:7')
 	    self.lastupdate = time
+	    sys.stdout.flush()
 
     def draw(self):
         self.screen.blit(self.trainImg, (300, 250))
         
         textSurface = self.bigFont.render("FELIX", True, self.textColor)
         self.screen.blit(textSurface, (0, 0))
+
+	clockSurface = self.bigFont.render(time.strftime("%H:%M:%S", time.gmtime()))
+	self.screen.blit(clockSurface, (self.screenSize[0] - clockSurface.get_width(), self.screenSize[1] - clockSurface.get_height()))
 
         x = 50
         y = 50
