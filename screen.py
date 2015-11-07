@@ -1,11 +1,19 @@
 #!/usr/bin/python
 
+from signal import alarm, signal, SIGALRM, SIGKILL
 import os,sys
 import pygame
 import time
 import random
+import threading
 
 import kvvliveapi
+
+class Alarm(Exception):
+        pass
+
+def alarm_handler(signum, frame):
+        raise Alarm
  
 class pyscope :
     screen = None;
@@ -34,11 +42,14 @@ class pyscope :
         if disp_no:
             print "I'm running under X display = {0}".format(disp_no)
             pygame.display.init()
-	    self.screenSize = (800,600)
+	    self.screenSize = (1280, 1024)
             self.screen = pygame.display.set_mode(self.screenSize)
         
         else:
 	    print "loading framebuffer"
+	    
+	    signal(SIGALRM, alarm_handler)
+            alarm(3)
 
             drivers = ['fbcon', 'directfb', 'svgalib', 'fbdev', 'inteldrmfb', 'dga', 'ggi', 'vgl', 'svgalib', 'aalib']
             found = False
@@ -47,7 +58,10 @@ class pyscope :
                 if not os.getenv('SDL_VIDEODRIVER'):
                     os.putenv('SDL_VIDEODRIVER', driver)
                 try:
-                    pygame.display.init()
+                    try:
+                        pygame.display.init()
+	            except Alarm:
+        	        raise KeyboardInterrupt
                 except pygame.error:
                     print 'Driver: {0} failed.'.format(driver)
                     continue
@@ -69,7 +83,7 @@ class pyscope :
  
     def update(self):
 	time = pygame.time.get_ticks()
-	print "time:" + str(time) + ' ' + str(self.lastupdate) + ' ' + str(self.interval)
+	#print "time:" + str(time) + ' ' + str(self.lastupdate) + ' ' + str(self.interval)
         if self.lastupdate == None or (time - self.lastupdate) > self.interval:
 	    try:
                 self.departures = kvvliveapi.get_departures('de:8212:7')
@@ -84,8 +98,7 @@ class pyscope :
         textSurface = self.bigFont.render("FELIX", True, self.textColor)
         self.screen.blit(textSurface, (0, 0))
 
-	clockData = time.strftime("%H:%M:%S", time.gmtime())
-	print clockData
+	clockData = time.strftime("%H:%M:%S", time.localtime())
 	clockSurface = self.bigFont.render(clockData, True, self.textColor)
 	self.screen.blit(clockSurface, (self.screenSize[0] - clockSurface.get_width(), self.screenSize[1] - clockSurface.get_height()))
 
