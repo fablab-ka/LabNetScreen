@@ -71,8 +71,11 @@ class pyscope :
 	time = pygame.time.get_ticks()
 	print "time:" + str(time) + ' ' + str(self.lastupdate) + ' ' + str(self.interval)
         if self.lastupdate == None or (time - self.lastupdate) > self.interval:
-            self.departures = kvvliveapi.get_departures('de:8212:7')
-	    self.lastupdate = time
+	    try:
+                self.departures = kvvliveapi.get_departures('de:8212:7')
+	        self.lastupdate = time
+	    except:
+		print "Unexpected Error: ", sys.exc_info()[0]
 	    sys.stdout.flush()
 
     def draw(self):
