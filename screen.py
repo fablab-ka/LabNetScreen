@@ -16,7 +16,7 @@ class pyscope :
         self.textColor = (255,255,255)
         self.framerate = 40
         self.lastupdate = None
-        self.interval = 5000
+        self.interval = 30000
         self.departures = []
 
         self.trainImg = pygame.image.load('train.jpg')
